@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: Descargar código
+    - name: Descargar codigo
       uses: actions/checkout@v4
 
     - name: Instalar Python
@@ -18,12 +18,12 @@ jobs:
       with:
         python-version: "3.12"
 
-    - name: Instalar librerías
+    - name: Instalar dependencias
       run: |
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Compilar app
+    - name: Crear aplicacion Mac
       run: |
         pyinstaller --windowed --name MasterX window_tool_masterx_beta4_8_1_auto_download_prompt.py
 
