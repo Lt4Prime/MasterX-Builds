@@ -1,0 +1,54 @@
+name: Build MasterX macOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "MasterX_0.9.2_3_shortcut_capture.py"
+      - "masterx.png"
+      - "requirements.txt"
+      - ".github/workflows/build-macos.yml"
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Tesseract
+        run: brew install tesseract
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Build MasterX app
+        run: |
+          python -m PyInstaller             --noconfirm             --clean             --windowed             --name "MasterX_0.9.2_Beta"             --add-data "masterx.png:."             "MasterX_0.9.2_3_shortcut_capture.py"
+
+      - name: Zip macOS app
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent             "dist/MasterX_0.9.2_Beta.app"             "MasterX_0.9.2_Beta_macOS.zip"
+
+      - name: SHA256
+        run: |
+          shasum -a 256 "MasterX_0.9.2_Beta_macOS.zip" | tee SHA256-macOS.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MasterX_0.9.2_Beta_macOS
+          path: |
+            MasterX_0.9.2_Beta_macOS.zip
+            SHA256-macOS.txt
+          if-no-files-found: error
